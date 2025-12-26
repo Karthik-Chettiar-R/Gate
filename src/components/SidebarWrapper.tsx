@@ -32,6 +32,11 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
             <img src="/goback-button.png" alt="close sidebar" className="w-10 h-10" />
           </button>
           <nav className="mt-4 flex flex-col gap-2">
+            <Link href="/" className="px-2 py-1 rounded hover:bg-white/5">
+              Home
+            </Link>
+          </nav>
+          <nav className="mt-4 flex flex-col gap-2">
             <Link href="/syllabus" className="px-2 py-1 rounded hover:bg-white/5">
               Syllabus
             </Link>
