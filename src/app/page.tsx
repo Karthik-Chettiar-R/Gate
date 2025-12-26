@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-
+import Router from "next/router";
+const useRouter  = Router;
 type TimeLeft = {
   years: number;
   months: number;
@@ -69,6 +70,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-black text-white">
       <main className="relative flex min-h-screen w-full flex-col items-center px-4 py-8">
+      
         <div className="text-center flex flex-col items-center px-4 py-8 mt-10">
           <button
             type="button"

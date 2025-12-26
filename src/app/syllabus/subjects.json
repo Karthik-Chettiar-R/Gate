@@ -1,0 +1,194 @@
+[
+  {
+    "id": 1,
+    "name": "Engineering Mathematics",
+    "topics": [
+      {
+        "id": 1,
+        "name": "Discrete Mathematics",
+        "subtopics": [
+          {
+            "id": 1,
+            "name": "propositional and first order logic",
+            "subtopics": [
+              
+            ]
+          },
+            {
+                "id": 2,
+                "name": "Sets",
+                "subtopics": [
+                ]
+            },
+            {
+                "id": 3,
+                "name": "Relations",
+                "subtopics": [
+                ]
+            },
+            {
+                "id": 4,
+                "name": "Functions",
+                "subtopics": [
+                ]
+            },
+            {
+                "id": 5,
+                "name": "Partial orders and lattices",
+                "subtopics": [
+                ]
+            },
+            {
+                "id": 6,
+                "name": "Moniods",
+                "subtopics": [
+                ]
+            },
+            {
+                "id": 7,
+                "name": "Groups",
+                "subtopics": [
+                ]
+            },
+            {
+                "id": 8,
+                "name": "Graphs",
+                "subtopics": [
+          { "id": 1, "name": "Connectivity" },
+          { "id": 2, "name": "Matching" },
+          { "id": 3, "name": "Coloring" }
+                ]
+            },
+            {
+                "id": 9,
+                "name": "Combinatorics",
+                "subtopics": [
+          { "id": 1, "name": "Counting" },
+          { "id": 2, "name": "Recurrence relations" },
+          { "id": 3, "name": "Generating functions" }
+                ]
+            }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Geometry",
+        "subtopics": [
+          { "id": 1, "name": "Triangles" },
+          { "id": 2, "name": "Circles" }
+        ]
+      },
+      {
+        "id": 3,
+        "name": "Trigonometry",
+        "subtopics": [
+          { "id": 1, "name": "Sine & Cosine" },
+          { "id": 2, "name": "Identities" }
+        ]
+      }
+    ],
+    "resources": [
+      { "label": "Textbook Ch.1-3", "url": "#" },
+      { "label": "Worksheet pack", "url": "#" },
+      { "label": "Video lectures", "url": "#" }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Physics",
+    "topics": [
+      {
+        "id": 1,
+        "name": "Kinematics",
+        "subtopics": [
+          {
+            "id": 1,
+            "name": "Displacement",
+            "subtopics": [
+              { "id": 1, "name": "Position vectors" }
+            ]
+          },
+          {
+            "id": 2,
+            "name": "Velocity",
+            "subtopics": [
+              { "id": 1, "name": "Average velocity" },
+              { "id": 2, "name": "Instantaneous velocity" }
+            ]
+          },
+          {
+            "id": 3,
+            "name": "Acceleration",
+            "subtopics": [
+              { "id": 1, "name": "Tangential" },
+              { "id": 2, "name": "Centripetal" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Dynamics",
+        "subtopics": [
+          { "id": 1, "name": "Forces" },
+          { "id": 2, "name": "Newton's laws" }
+        ]
+      }
+    ],
+    "resources": [
+      { "label": "Lab manual", "url": "#" },
+      { "label": "Problem set A", "url": "#" }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Chemistry",
+    "topics": [
+      {
+        "id": 1,
+        "name": "Atomic structure",
+        "subtopics": [
+          {
+            "id": 1,
+            "name": "Protons & Neutrons",
+            "subtopics": [
+              { "id": 1, "name": "Nuclear charge" }
+            ]
+          },
+          {
+            "id": 2,
+            "name": "Electron shells",
+            "subtopics": [
+              { "id": 1, "name": "Energy levels" },
+              { "id": 2, "name": "Orbitals" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Periodic trends",
+        "subtopics": [
+          {
+            "id": 1,
+            "name": "Electronegativity",
+            "subtopics": [
+              { "id": 1, "name": "Pauling scale" }
+            ]
+          },
+          {
+            "id": 2,
+            "name": "Atomic radius",
+            "subtopics": [
+              { "id": 1, "name": "Covalent radius" }
+            ]
+          }
+        ]
+      }
+    ],
+    "resources": [
+      { "label": "Lab safety guide", "url": "#" },
+      { "label": "Chemistry notes", "url": "#" }
+    ]
+  }
+]
