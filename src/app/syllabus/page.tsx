@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import subjects from "./subjects.json";
 
 type Node = { id: number; name: string; subtopics?: Node[] };
@@ -12,6 +12,23 @@ type Subject = {
     resources: Resource[];
 };
 
+// Raw shapes from subjects.json (support both `items` and `children` keys)
+type RawItem = { id: number; name: string; children?: RawItem[]; items?: RawItem[] };
+type RawTopic = { id: number; name: string; items?: RawItem[]; subtopics?: RawItem[] };
+type RawSubject = { id: number; name: string; topics?: RawTopic[]; resources?: Resource[] };
+
+function normalizeNodes(items?: RawItem[] | undefined): Node[] {
+    if (!items || items.length === 0) return [];
+    return items.map((it) => ({ id: it.id, name: it.name, subtopics: normalizeNodes(it.children ?? it.items) }));
+}
+
+const normalizedSubjects: Subject[] = (subjects as RawSubject[]).map((s) => ({
+    id: s.id,
+    name: s.name,
+    topics: (s.topics ?? []).map((t) => ({ id: t.id, name: t.name, subtopics: normalizeNodes(t.items ?? t.subtopics) })),
+    resources: s.resources ?? [],
+}));
+
 export default function SyllabusPage() {
     const [openRowId, setOpenRowId] = useState<number | null>(null);
     const [openResourceId, setOpenResourceId] = useState<number | null>(null);
@@ -19,6 +36,56 @@ export default function SyllabusPage() {
     const [checkedLeaves, setCheckedLeaves] = useState<Record<string, boolean>>({});
     // track which nodes are open; key: "subject:path"
     const [openNodeMap, setOpenNodeMap] = useState<Record<string, boolean>>({});
+
+    // persist checked leaves and open node map between sessions using
+    // localStorage with a cookie fallback (also write a cookie for cross-tab visibility)
+    useEffect(() => {
+        try {
+            const raw = typeof window !== "undefined" ? localStorage.getItem("syllabus_checked_leaves_v1") : null;
+            if (raw) {
+                setCheckedLeaves(JSON.parse(raw));
+            } else if (typeof document !== "undefined") {
+                const m = document.cookie.match('(^|;)\\s*syllabus_checked_leaves=([^;]+)');
+                if (m && m[2]) setCheckedLeaves(JSON.parse(decodeURIComponent(m[2])));
+            }
+
+            const rawOpen = typeof window !== "undefined" ? localStorage.getItem("syllabus_open_node_map_v1") : null;
+            if (rawOpen) {
+                setOpenNodeMap(JSON.parse(rawOpen));
+            } else if (typeof document !== "undefined") {
+                const m2 = document.cookie.match('(^|;)\\s*syllabus_open_node_map=([^;]+)');
+                if (m2 && m2[2]) setOpenNodeMap(JSON.parse(decodeURIComponent(m2[2])));
+            }
+        } catch (err) {
+            console.error("Failed to load persisted syllabus state", err);
+        }
+    }, []);
+
+    useEffect(() => {
+        try {
+            if (typeof window !== "undefined") {
+                localStorage.setItem("syllabus_checked_leaves_v1", JSON.stringify(checkedLeaves));
+            }
+            if (typeof document !== "undefined") {
+                document.cookie = `syllabus_checked_leaves=${encodeURIComponent(JSON.stringify(checkedLeaves))}; path=/; max-age=${60 * 60 * 24 * 365}`;
+            }
+        } catch (err) {
+            console.error("Failed to persist checkedLeaves", err);
+        }
+    }, [checkedLeaves]);
+
+    useEffect(() => {
+        try {
+            if (typeof window !== "undefined") {
+                localStorage.setItem("syllabus_open_node_map_v1", JSON.stringify(openNodeMap));
+            }
+            if (typeof document !== "undefined") {
+                document.cookie = `syllabus_open_node_map=${encodeURIComponent(JSON.stringify(openNodeMap))}; path=/; max-age=${60 * 60 * 24 * 365}`;
+            }
+        } catch (err) {
+            console.error("Failed to persist openNodeMap", err);
+        }
+    }, [openNodeMap]);
 
     // helper to build a key from subject id and path of node ids
     function nodeKey(subjectId: number, path: number[]) {
@@ -84,7 +151,7 @@ export default function SyllabusPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {(subjects as Subject[]).map((subj) => (
+                        {(normalizedSubjects as Subject[]).map((subj) => (
                             <React.Fragment key={subj.id}>
                                 <tr
                                     className="cursor-pointer hover:bg-gray-50 dark:hover:bg-white/10"
