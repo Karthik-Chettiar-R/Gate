@@ -9,7 +9,6 @@ type Subject = {
     id: number;
     name: string;
     topics: Node[];
-    resources: Resource[];
 };
 
 // Raw shapes from subjects.json (support both `items` and `children` keys)
@@ -26,12 +25,15 @@ const normalizedSubjects: Subject[] = (subjects as RawSubject[]).map((s) => ({
     id: s.id,
     name: s.name,
     topics: (s.topics ?? []).map((t) => ({ id: t.id, name: t.name, subtopics: normalizeNodes(t.items ?? t.subtopics) })),
-    resources: s.resources ?? [],
 }));
 
 export default function SyllabusPage() {
     const [openRowId, setOpenRowId] = useState<number | null>(null);
     const [openResourceId, setOpenResourceId] = useState<number | null>(null);
+    const [resourcesMap, setResourcesMap] = useState<Record<number, Resource[]>>({});
+    const [addingSubjectId, setAddingSubjectId] = useState<number | null>(null);
+    const [newLabel, setNewLabel] = useState("");
+    const [newUrl, setNewUrl] = useState("");
     // store checked state for leaf subtopics keyed as "subject:path" e.g. "1:2:3"
     const [checkedLeaves, setCheckedLeaves] = useState<Record<string, boolean>>({});
     // track which nodes are open; key: "subject:path"
@@ -136,6 +138,48 @@ export default function SyllabusPage() {
         setOpenResourceId((prev) => (prev === id ? null : id));
     }
 
+    // resources persistence
+    useEffect(() => {
+        try {
+            const raw = typeof window !== "undefined" ? localStorage.getItem("syllabus_resources_v1") : null;
+            if (raw) setResourcesMap(JSON.parse(raw));
+        } catch (err) {
+            console.error("Failed to load resources from localStorage", err);
+        }
+    }, []);
+
+    useEffect(() => {
+        try {
+            if (typeof window !== "undefined") {
+                localStorage.setItem("syllabus_resources_v1", JSON.stringify(resourcesMap));
+            }
+        } catch (err) {
+            console.error("Failed to persist resources", err);
+        }
+    }, [resourcesMap]);
+
+    function getResourcesFor(subjectId: number) {
+        return resourcesMap[subjectId] ?? [];
+    }
+
+    function addResource(subjectId: number, r: Resource) {
+        setResourcesMap((m) => {
+            const next = { ...m };
+            next[subjectId] = [...(next[subjectId] ?? []), r];
+            return next;
+        });
+    }
+
+    function deleteResource(subjectId: number, idx: number) {
+        setResourcesMap((m) => {
+            const next = { ...m };
+            const arr = [...(next[subjectId] ?? [])];
+            arr.splice(idx, 1);
+            next[subjectId] = arr;
+            return next;
+        });
+    }
+
     
 
     return (
@@ -230,10 +274,10 @@ export default function SyllabusPage() {
                                     <tr>
                                         <td colSpan={2} className="bg-gray-50 dark:bg-white/6 px-4 py-2">
                                             <div className="space-y-2">
-                                                {subj.resources.map((r, idx) => (
+                                                {getResourcesFor(subj.id).map((r, idx) => (
                                                     <div
                                                         key={idx}
-                                                        className="rounded px-3 py-2 hover:bg-gray-100 dark:hover:bg-white/8"
+                                                        className="flex items-center justify-between rounded px-3 py-2 hover:bg-gray-100 dark:hover:bg-white/8"
                                                     >
                                                         <a
                                                             href={r.url}
@@ -244,8 +288,73 @@ export default function SyllabusPage() {
                                                         >
                                                             {r.label}
                                                         </a>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                deleteResource(subj.id, idx);
+                                                            }}
+                                                            className="ml-4 rounded bg-red-50 px-2 py-1 text-sm text-red-600 hover:bg-red-100"
+                                                        >
+                                                            Del
+                                                        </button>
                                                     </div>
                                                 ))}
+
+                                                {/* add new resource control */}
+                                                {addingSubjectId === subj.id ? (
+                                                    <div className="mt-2 space-y-2 rounded border p-3">
+                                                        <input
+                                                            value={newLabel}
+                                                            onChange={(e) => setNewLabel(e.target.value)}
+                                                            placeholder="Display text"
+                                                            className="w-full rounded border px-2 py-1"
+                                                        />
+                                                        <input
+                                                            value={newUrl}
+                                                            onChange={(e) => setNewUrl(e.target.value)}
+                                                            placeholder="YouTube link (https://...)"
+                                                            className="w-full rounded border px-2 py-1"
+                                                        />
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    if (!newLabel || !newUrl) return;
+                                                                    addResource(subj.id, { label: newLabel, url: newUrl });
+                                                                    setNewLabel("");
+                                                                    setNewUrl("");
+                                                                    setAddingSubjectId(null);
+                                                                }}
+                                                                className="rounded bg-green-600 px-3 py-1 text-white hover:bg-green-700"
+                                                            >
+                                                                Save
+                                                            </button>
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setAddingSubjectId(null);
+                                                                    setNewLabel("");
+                                                                    setNewUrl("");
+                                                                }}
+                                                                className="rounded bg-gray-500 px-3 py-1 text-sm"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="mt-2 flex justify-end">
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setAddingSubjectId(subj.id);
+                                                            }}
+                                                            className="inline-flex items-center gap-2 rounded bg-indigo-600 px-3 py-1 text-sm text-white hover:bg-indigo-700"
+                                                        >
+                                                            + Add resource
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
